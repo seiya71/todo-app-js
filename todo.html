@@ -27,20 +27,34 @@
     <h3>やること一覧</h3>
     <ul id="list"></ul>
     <script>
+        let todos = [];
         function init() {
             const keys = Object.keys(localStorage);
             keys.forEach(key => {
                 const todo = JSON.parse(localStorage.getItem(key));
+                todos.push(todo);
+            });
+            todos.forEach(todo => {
                 listTodo(todo);
             });
         };
 
+        function updateTodos(){
+            todos = [];
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                const todo = JSON.parse(localStorage.getItem(key));
+                todos.push(todo);
+            });
+        }
+
         function addTodo() {
             const todo = saveTodo();
-            if(todo){
+            if (todo) {
                 listTodo(todo);
                 document.getElementById('todo').value = "";
             }
+            updateTodos();
         };
 
         function saveTodo() {
@@ -71,6 +85,7 @@
             checkbox.onclick = function () {
                 todo.done = checkbox.checked;
                 localStorage.setItem(todo.id, JSON.stringify(todo));
+                updateTodos();
             };
             const label = document.createElement('label');
             label.htmlFor = todo.id;
@@ -83,6 +98,7 @@
             newbutton.onclick = function () {
                 list.removeChild(li);
                 localStorage.removeItem(todo.id);
+                updateTodos();
             };
             li.appendChild(newbutton);
         }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        input[type="checkbox"] {
+            display: none;
+        }
+
+        input[type="checkbox"]:checked+label {
+            color: blue;
+            font-weight: bold;
+            text-decoration: line-through;
+            /* チェックされたら文字に打ち消し線 */
+        }
+    </style>
+</head>
+
+<body onload="init()">
+    <h2>やることリスト</h2>
+    <div class="todo-input-area">
+        <input type="text" id="todo" placeholder="やることを入力してください" />
+        <button onclick="addTodo()">追加する</button>
+    </div>
+    <h3>やること一覧</h3>
+    <ul id="list"></ul>
+    <script>
+        function init() {
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                const todo = JSON.parse(localStorage.getItem(key));
+                listTodo(todo);
+            });
+        };
+
+        function addTodo() {
+            const todo = saveTodo();
+            if (todo) {
+                listTodo(todo);
+            }
+            
+        };
+
+        function saveTodo() {
+            const todoText = document.getElementById('todo').value;
+            if (todoText !== "") {
+                const todo = {
+                    id: crypto.randomUUID(),
+                    todo: todoText,
+                    done: false
+                };
+
+                localStorage.setItem(todo.id, JSON.stringify(todo));
+
+                return todo;
+            } else {
+                alert("やることを入力してください");
+            }
+        }
+
+        function listTodo(todo) {
+            const list = document.getElementById('list');
+            const li = document.createElement("li");
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = todo.id;
+            checkbox.value = todo.todo;
+            checkbox.checked = todo.done;
+            checkbox.onclick = function () {
+                todo.done = checkbox.checked;
+                localStorage.setItem(todo.id, JSON.stringify(todo));
+            };
+            const label = document.createElement('label');
+            label.htmlFor = todo.id;
+            label.appendChild(document.createTextNode(' ' + todo.todo));
+            list.appendChild(li);
+            li.appendChild(checkbox);
+            li.appendChild(label);
+            const newbutton = document.createElement("button");
+            newbutton.textContent = "削除";
+            newbutton.onclick = function () {
+                list.removeChild(li);
+                localStorage.removeItem(todo.id);
+            };
+            li.appendChild(newbutton);
+        }
+    </script>
+</body>
+
+</html>

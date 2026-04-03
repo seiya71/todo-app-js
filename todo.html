@@ -43,14 +43,6 @@
             });
         };
 
-        function updateTodos() {
-            todos = [];
-            const keys = Object.keys(localStorage);
-            keys.forEach(key => {
-                const todo = JSON.parse(localStorage.getItem(key));
-                todos.push(todo);
-            });
-        };
         function allTodo() {
             renderTodos(todos);
             filter = "all";
@@ -91,10 +83,10 @@
         function addTodo() {
             const todo = saveTodo();
             if (todo) {
-                listTodo(todo);
                 document.getElementById('todo').value = "";
+                todos.push(todo);
+                currentFilter(filter);
             }
-            updateTodos();
         };
 
         function saveTodo() {
@@ -125,7 +117,6 @@
             checkbox.onclick = function () {
                 todo.done = checkbox.checked;
                 localStorage.setItem(todo.id, JSON.stringify(todo));
-                updateTodos();
                 currentFilter(filter);
             };
             const label = document.createElement('label');
@@ -137,9 +128,9 @@
             const newbutton = document.createElement("button");
             newbutton.textContent = "削除";
             newbutton.onclick = function () {
-                list.removeChild(li);
                 localStorage.removeItem(todo.id);
-                updateTodos();
+                todos = todos.filter(t => t.id !== todo.id);
+                currentFilter(filter);
             };
             li.appendChild(newbutton);
         }

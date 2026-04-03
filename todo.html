@@ -25,22 +25,58 @@
         <button onclick="addTodo()">追加する</button>
     </div>
     <h3>やること一覧</h3>
+    <button onclick="allTodo()">全件</button>
+    <button onclick="activeTodo()">未完了</button>
+    <button onclick="completedTodo()">完了</button>
     <ul id="list"></ul>
     <script>
+        let todos = [];
         function init() {
             const keys = Object.keys(localStorage);
             keys.forEach(key => {
                 const todo = JSON.parse(localStorage.getItem(key));
+                todos.push(todo);
+            });
+            todos.forEach(todo => {
+                listTodo(todo);
+            });
+        };
+
+        function updateTodos(){
+            todos = [];
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                const todo = JSON.parse(localStorage.getItem(key));
+                todos.push(todo);
+            });
+        };
+        function allTodo(){
+            renderTodos(todos);
+        };
+
+        function activeTodo(){
+            renderTodos(todos.filter(todo => !todo.done));
+        };
+
+        function completedTodo(){
+            renderTodos(todos.filter(todo => todo.done));
+        }
+
+        function renderTodos(filteredTodos){
+            const list = document.getElementById('list');
+            list.innerHTML="";
+            filteredTodos.forEach(todo => {
                 listTodo(todo);
             });
         };
 
         function addTodo() {
             const todo = saveTodo();
-            if(todo){
+            if (todo) {
                 listTodo(todo);
                 document.getElementById('todo').value = "";
             }
+            updateTodos();
         };
 
         function saveTodo() {
@@ -71,6 +107,7 @@
             checkbox.onclick = function () {
                 todo.done = checkbox.checked;
                 localStorage.setItem(todo.id, JSON.stringify(todo));
+                updateTodos();
             };
             const label = document.createElement('label');
             label.htmlFor = todo.id;
@@ -83,6 +120,7 @@
             newbutton.onclick = function () {
                 list.removeChild(li);
                 localStorage.removeItem(todo.id);
+                updateTodos();
             };
             li.appendChild(newbutton);
         }

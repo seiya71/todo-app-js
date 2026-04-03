@@ -31,6 +31,7 @@
     <ul id="list"></ul>
     <script>
         let todos = [];
+        let filter = "all";
         function init() {
             const keys = Object.keys(localStorage);
             keys.forEach(key => {
@@ -42,7 +43,7 @@
             });
         };
 
-        function updateTodos(){
+        function updateTodos() {
             todos = [];
             const keys = Object.keys(localStorage);
             keys.forEach(key => {
@@ -50,21 +51,38 @@
                 todos.push(todo);
             });
         };
-        function allTodo(){
+        function allTodo() {
             renderTodos(todos);
+            filter = "all";
         };
 
-        function activeTodo(){
+        function activeTodo() {
             renderTodos(todos.filter(todo => !todo.done));
+            filter = "active";
         };
 
-        function completedTodo(){
+        function completedTodo() {
             renderTodos(todos.filter(todo => todo.done));
-        }
+            filter = "completed";
+        };
 
-        function renderTodos(filteredTodos){
+        function currentFilter(filter) {
+            switch (filter) {
+                case "all":
+                    allTodo();
+                    break;
+                case "active":
+                    activeTodo();
+                    break;
+                case "completed":
+                    completedTodo();
+                    break;
+            }
+        };
+
+        function renderTodos(filteredTodos) {
             const list = document.getElementById('list');
-            list.innerHTML="";
+            list.innerHTML = "";
             filteredTodos.forEach(todo => {
                 listTodo(todo);
             });
@@ -108,6 +126,7 @@
                 todo.done = checkbox.checked;
                 localStorage.setItem(todo.id, JSON.stringify(todo));
                 updateTodos();
+                currentFilter(filter);
             };
             const label = document.createElement('label');
             label.htmlFor = todo.id;

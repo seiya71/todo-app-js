@@ -25,6 +25,9 @@
         <button onclick="addTodo()">追加する</button>
     </div>
     <h3>やること一覧</h3>
+    <button onclick="allTodo()">全件</button>
+    <button onclick="activeTodo()">未完了</button>
+    <button onclick="completedTodo()">完了</button>
     <ul id="list"></ul>
     <script>
         let todos = [];
@@ -46,7 +49,26 @@
                 const todo = JSON.parse(localStorage.getItem(key));
                 todos.push(todo);
             });
+        };
+        function allTodo(){
+            renderTodos(todos);
+        };
+
+        function activeTodo(){
+            renderTodos(todos.filter(todo => !todo.done));
+        };
+
+        function completedTodo(){
+            renderTodos(todos.filter(todo => todo.done));
         }
+
+        function renderTodos(filteredTodos){
+            const list = document.getElementById('list');
+            list.innerHTML="";
+            filteredTodos.forEach(todo => {
+                listTodo(todo);
+            });
+        };
 
         function addTodo() {
             const todo = saveTodo();

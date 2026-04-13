@@ -31,6 +31,7 @@
     <ul id="list"></ul>
     <script>
         let todos = [];
+        let filter = "all";
         function init() {
             const keys = Object.keys(localStorage);
             keys.forEach(key => {
@@ -42,29 +43,38 @@
             });
         };
 
-        function updateTodos(){
-            todos = [];
-            const keys = Object.keys(localStorage);
-            keys.forEach(key => {
-                const todo = JSON.parse(localStorage.getItem(key));
-                todos.push(todo);
-            });
-        };
-        function allTodo(){
+        function allTodo() {
             renderTodos(todos);
+            filter = "all";
         };
 
-        function activeTodo(){
+        function activeTodo() {
             renderTodos(todos.filter(todo => !todo.done));
+            filter = "active";
         };
 
-        function completedTodo(){
+        function completedTodo() {
             renderTodos(todos.filter(todo => todo.done));
-        }
+            filter = "completed";
+        };
 
-        function renderTodos(filteredTodos){
+        function currentFilter(filter) {
+            switch (filter) {
+                case "all":
+                    allTodo();
+                    break;
+                case "active":
+                    activeTodo();
+                    break;
+                case "completed":
+                    completedTodo();
+                    break;
+            }
+        };
+
+        function renderTodos(filteredTodos) {
             const list = document.getElementById('list');
-            list.innerHTML="";
+            list.innerHTML = "";
             filteredTodos.forEach(todo => {
                 listTodo(todo);
             });
@@ -73,10 +83,10 @@
         function addTodo() {
             const todo = saveTodo();
             if (todo) {
-                listTodo(todo);
                 document.getElementById('todo').value = "";
+                todos.push(todo);
+                currentFilter(filter);
             }
-            updateTodos();
         };
 
         function saveTodo() {
@@ -107,22 +117,55 @@
             checkbox.onclick = function () {
                 todo.done = checkbox.checked;
                 localStorage.setItem(todo.id, JSON.stringify(todo));
-                updateTodos();
+                currentFilter(filter);
             };
             const label = document.createElement('label');
+            label.id = 'label' + todo.id;
             label.htmlFor = todo.id;
             label.appendChild(document.createTextNode(' ' + todo.todo));
             list.appendChild(li);
             li.appendChild(checkbox);
             li.appendChild(label);
-            const newbutton = document.createElement("button");
-            newbutton.textContent = "削除";
-            newbutton.onclick = function () {
-                list.removeChild(li);
+            const editBtn = document.createElement("button");
+            editBtn.textContent = "編集";
+            editBtn.id = 'edit' + todo.id;
+            editBtn.onclick = function () {
+                const oldTodo = document.getElementById(label.id);
+                const editTodo = document.createElement('input');
+                editTodo.type = 'text';
+                editTodo.value = oldTodo.textContent;
+                editTodo.id = 'input' + todo.id;
+                oldTodo.replaceWith(editTodo);
+                const updateBtn = document.createElement('button');
+                updateBtn.innerText = '更新';
+                editBtn.replaceWith(updateBtn);
+                updateBtn.onclick = function () {
+                    const newTodo = document.createElement('label');
+                    newTodo.id = label.id;
+                    newTodo.htmlFor = label.htmlFor;
+                    newTodo.textContent = editTodo.value;
+                    checkbox.value = newTodo.textContent;
+                    const nextTodo = {
+                        id: todo.id,
+                        todo: newTodo.textContent,
+                        done: todo.done
+                    };
+                    localStorage.setItem(todo.id, JSON.stringify(nextTodo));
+                    const index = todos.findIndex(t => t.id === todo.id);
+                    todos[index].todo = newTodo.textContent;
+                    editTodo.replaceWith(newTodo);
+                    updateBtn.replaceWith(editBtn);
+                }
+            }
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "削除";
+            deleteBtn.onclick = function () {
                 localStorage.removeItem(todo.id);
-                updateTodos();
+                todos = todos.filter(t => t.id !== todo.id);
+                currentFilter(filter);
             };
-            li.appendChild(newbutton);
+            li.appendChild(editBtn);
+            li.appendChild(deleteBtn);
         }
     </script>
 </body>

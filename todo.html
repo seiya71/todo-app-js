@@ -120,19 +120,52 @@
                 currentFilter(filter);
             };
             const label = document.createElement('label');
+            label.id = 'label' + todo.id;
             label.htmlFor = todo.id;
             label.appendChild(document.createTextNode(' ' + todo.todo));
             list.appendChild(li);
             li.appendChild(checkbox);
             li.appendChild(label);
-            const newbutton = document.createElement("button");
-            newbutton.textContent = "削除";
-            newbutton.onclick = function () {
+            const editBtn = document.createElement("button");
+            editBtn.textContent = "編集";
+            editBtn.id = 'edit' + todo.id;
+            editBtn.onclick = function () {
+                const oldTodo = document.getElementById(label.id);
+                const editTodo = document.createElement('input');
+                editTodo.type = 'text';
+                editTodo.value = oldTodo.textContent;
+                editTodo.id = 'input' + todo.id;
+                oldTodo.replaceWith(editTodo);
+                const updateBtn = document.createElement('button');
+                updateBtn.innerText = '更新';
+                editBtn.replaceWith(updateBtn);
+                updateBtn.onclick = function () {
+                    const newTodo = document.createElement('label');
+                    newTodo.id = label.id;
+                    newTodo.htmlFor = label.htmlFor;
+                    newTodo.textContent = editTodo.value;
+                    checkbox.value = newTodo.textContent;
+                    const nextTodo = {
+                        id: todo.id,
+                        todo: newTodo.textContent,
+                        done: todo.done
+                    };
+                    localStorage.setItem(todo.id, JSON.stringify(nextTodo));
+                    const index = todos.findIndex(t => t.id === todo.id);
+                    todos[index].todo = newTodo.textContent;
+                    editTodo.replaceWith(newTodo);
+                    updateBtn.replaceWith(editBtn);
+                }
+            }
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "削除";
+            deleteBtn.onclick = function () {
                 localStorage.removeItem(todo.id);
                 todos = todos.filter(t => t.id !== todo.id);
                 currentFilter(filter);
             };
-            li.appendChild(newbutton);
+            li.appendChild(editBtn);
+            li.appendChild(deleteBtn);
         }
     </script>
 </body>

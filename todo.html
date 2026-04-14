@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>やることリスト</title>
     <style>
+        ul {
+            list-style: none;
+            /* 点を消す */
+            padding: 0;
+            /* 左の余白も消すのが一般的 */
+            margin: 0;
+            /* 上下の余白を消す */
+        }
+
         input[type="checkbox"] {
             display: none;
         }
@@ -22,6 +31,12 @@
     <h2>やることリスト</h2>
     <div class="todo-input-area">
         <input type="text" id="todo" placeholder="やることを入力してください" />
+        <select name="category" id="todo-category">
+            <option value="" selected>カテゴリー</option>
+            <option value="work">仕事</option>
+            <option value="private">プライベート</option>
+            <option value="others">その他</option>
+        </select>
         <button onclick="addTodo()">追加する</button>
     </div>
     <h3>やること一覧</h3>
@@ -84,6 +99,7 @@
             const todo = saveTodo();
             if (todo) {
                 document.getElementById('todo').value = "";
+                document.getElementById('todo-category').value = "";
                 todos.push(todo);
                 currentFilter(filter);
             }
@@ -91,9 +107,11 @@
 
         function saveTodo() {
             const todoText = document.getElementById('todo').value;
+            const todoCategory = document.getElementById('todo-category').value;
             if (todoText !== "") {
                 const todo = {
                     id: crypto.randomUUID(),
+                    category: todoCategory,
                     todo: todoText,
                     done: false
                 };
@@ -106,9 +124,26 @@
             }
         }
 
+        function categoriesTodo(categoryTodo){
+            switch (categoryTodo){
+                case "work":
+                    return "仕事";
+                    break;
+                case "private":
+                    return "プライベート";
+                    break;
+                case "others":
+                    return "その他";
+                    break;
+            }
+        }
+
         function listTodo(todo) {
             const list = document.getElementById('list');
             const li = document.createElement("li");
+            const categoryBox = document.createElement('span');
+            const categoryTodo = todo.category;
+            categoryBox.textContent = categoriesTodo(categoryTodo);
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.id = todo.id;
@@ -124,6 +159,7 @@
             label.htmlFor = todo.id;
             label.appendChild(document.createTextNode(' ' + todo.todo));
             list.appendChild(li);
+            li.appendChild(categoryBox);
             li.appendChild(checkbox);
             li.appendChild(label);
             const editBtn = document.createElement("button");
